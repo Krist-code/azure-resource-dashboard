@@ -1,0 +1,162 @@
+:root{
+	--main-background-color: #2E302C;
+	--hover-color: #d8a602;
+
+}
+html, body{
+	height: 100%;
+}
+
+body{
+	color:white;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--main-background-color);
+	min-height: 100vh;
+}
+
+.dashboard-grid{
+	flex: 1;
+}
+
+.header{
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 6%;
+	width: 100%;
+	z-index: 1000;
+	display: flex;
+	padding: 0 20px;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+}
+
+h1{
+	font-size: 24px;
+}
+
+.status{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.status-badge{
+	width: 60px;
+	height: 60px;
+	margin-right: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid green;
+	border-radius: 50%;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.status-badge span{
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+.status-description{
+	padding: 5px;
+}
+
+.status-description span{
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	justify-content: space-between;
+	display: block;
+}
+
+.sidebar{
+	position: fixed;
+	top: 6%;
+	bottom: 2%;
+	left: 0;
+	height: 100%;
+	width: 200px;
+	padding-top: 20px;
+	transition: width o.3s;
+	background-color: var(--main-background-color);
+}
+
+.sidebar .nav-link{
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	padding: 10px 20px;
+	color: #fff;
+}
+
+.sidebar .descrption{
+	font-size: 14px;
+}
+
+.sidebar .nav-link:hover{
+	background-color: var(--hover-color);
+}
+
+.main-content{
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	margin-top: 6%;
+	margin-left: 200px;
+	padding: 20px;
+}
+.kpi-cards .cards{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+.card{
+	width: 25%;
+	padding: 20Px;
+	align-items: center;
+	justify-content: center;
+}
+
+.card h3{
+	font-size: 12px;
+}
+
+.card p{
+	font-size: 24px;
+}
+
+.card i{
+	font-size: 20px;
+}
+
+.live-feed{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px;
+}
+
+.canvas{
+	width: 50%;
+}
+
+.large-card{
+	width: 100%;
+}
+
+.large-card li{
+	list-style: disc;
+}
+
+footer{
+	text-align: right;
+	padding-right: 15px;
+}

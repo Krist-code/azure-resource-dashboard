@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <!-- Bootstrap Style CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<!-- Custom Stylesheet -->
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="dashboard-grid">
+    <!-- Header section -->
+    <header class="header">
+      <h1>Project Monitor: Azure HA Web Cluster</h1>
+      <div class="status">
+        <div class="status-badge">
+          <span>Healthy</span>
+        </div>
+        <div class="status-description">
+          <span>Live Status  <i class="bi bi-github"></i></span>
+          <span>Latest Comit: Checking<!--<span id="health">Checking...</span> --></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar menu -->
+    <aside class="sidebar">
+      <nav class="nav flex-column">
+                  <!-- Menu Iten 1-->
+        <a class="nav-link" href="#">
+          <span class="icon">
+            <i class="bi bi-grid"></i>
+          </span>
+          <span class="description">Dashboard</span>
+                  <!-- Menu Iten 1-->
+        <a class="nav-link" href="#">
+          <span class="icon">
+            <i class="bi bi-hdd-network"></i>
+          </span>
+          <span class="description">Storage Explorer</span>
+                  <!-- Menu Iten 1-->
+        <a class="nav-link" href="#">
+          <span class="icon">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </span>
+          <span class="description">System Logs</span>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <section class="kpi-cards">
+        <h3>KPI Hero Cards</h3>
+        <div class="cards">
+          <div class="card">
+            <h3 >Instance Count</h3>
+            <p id="vm-count">2</p>
+            <i class="bi bi-diagram-3"></i>
+          </div>
+          <div class="card">
+            <h3>Avg CPU</h3>
+            <p><span id="cpu-load">12</span>%</p>
+            <i class="bi bi-clouds"></i>
+          </div>
+          <div class="card">
+            <h3>Storage</h3>
+            <p>Active</p>
+            <i class="bi bi-hdd-network"></i>
+          </div>
+          <div class="card">
+            <h3>Total Request</h3>
+            <p>15,476</p>
+            <i class="bi bi-download"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- Line break -->
+      <hr/>
+
+      <section class="live-feed">
+        <div class="canvas">
+          <h3>Cluster Node Responses</h3>
+          <canvas id="cpuChart"></canvas>
+        </div>
+        <div id="response-log">
+          <h3>Live Activity Feed</h3>
+          <div class="card large-card">
+            <ul id="identity-list">
+              <li>[10:3001] Request routed to: VMSS VMSS-Node-03</li>
+              <li>Autoscale: Added new instance VMSS-Node-01</li>
+              <li>Alert: CPU > 70% on VMSS-0-VMSS-Node-02</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer Note -->
+  <footer>
+    <span> &copy; Powerd by MS Azure | UML Academic Project | Kristopher</span>
+  </footer>
+  
+  <!-- Chart.js script displaying CPU skpike -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script type="text/javascript">
+    document.getElementById('cpu-load').innerText = "15"
+
+    const ctx = document.getElementById('cpuChart').getContext('2d');
+    const cpuChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels:[],
+        datasets:[{
+          label: 'CPU Utilization (%)',
+          data: [],
+          borderColor: '#00fff00',
+          tension: 0.4
+        }]
+      }
+    });
+
+    function pushDataToChart(value){
+      const now = new Date().toLocalTimeString();
+      cpuChart.data.labels.push(now);
+      cpuChart.data.datasets[0].data.push(value);
+
+      if(cpuChar.data.label.length > 10){
+        cpuChart.data.labels.shift();
+        cpuChart.data.datasets[0].data.shift();
+      }
+      cpuChart.update();
+    }
+  </script>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
