@@ -22,7 +22,7 @@
         </div>
         <div class="status-description">
           <span>Live Status  <i class="bi bi-github"></i></span>
-          <span>Latest Comit: Checking<!--<span id="health">Checking...</span> --></span>
+          <span id="health-status">Latest Comit: Checking<!--<span id="health">Checking...</span> --></span>
         </div>
       </div>
     </header>
@@ -90,7 +90,7 @@
         <div id="response-log">
           <h3>Live Activity Feed</h3>
           <div class="card large-card">
-            <ul id="identity-list">
+            <ul id="server-identity-list">
               <li>[10:3001] Request routed to: VMSS VMSS-Node-03</li>
               <li>Autoscale: Added new instance VMSS-Node-01</li>
               <li>Alert: CPU > 70% on VMSS-0-VMSS-Node-02</li>
@@ -110,33 +110,77 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script type="text/javascript">
-    document.getElementById('cpu-load').innerText = "15"
+    let seenServer = new Set();
+
+    //Using the load balancer to access the server
+    const lbIp = 'http://20.125.84.61/health.json';
 
     const ctx = document.getElementById('cpuChart').getContext('2d');
     const cpuChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels:[],
-        datasets:[{
-          label: 'CPU Utilization (%)',
-          data: [],
-          borderColor: '#00fff00',
-          tension: 0.4
-        }]
-      }
+        type: 'line',
+        data: {
+            labels: ['Start'], // Initial Label
+            datasets: [{
+                label: 'Live CPU Load %',
+                data: [0], // Initial Data Point
+                borderColor: '#00ff00',
+                backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                fill: True,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: { y: { min: 0, max: 100 } } // Keeps chart steady during spikes
+        }
     });
 
-    function pushDataToChart(value){
-      const now = new Date().toLocalTimeString();
-      cpuChart.data.labels.push(now);
-      cpuChart.data.datasets[0].data.push(value);
+    //Handles updates on CPU chart
+    function updateChart(value){
+      const time = new Date().toLocalTimeString();
 
-      if(cpuChar.data.label.length > 10){
+      //adding new data
+      cpuChart.data.labels.push(time);
+      cpuChart.data.datasets[0].data.shift();
+
+      //Maintain "keeping only 10 points"
+      if(cpuChart.data.labels.length > 10){
         cpuChart.data.labels.shift();
         cpuChart.data.datasets[0].data.shift();
       }
       cpuChart.update();
     }
+
+
+    //Pulling data from server
+    async function pollCluster(){
+      try{
+        const response = await fetch(lbIp);
+        if(!response.ok) throw new Error("LB Unreachable");
+
+        const data = await response.json()
+
+        //updating the CPU nemeric value
+        document.getElementById('cpu-load').innerText = data.cpuLoad;
+
+        //Adding to server identity list if new
+        if(!seenServer.has(data.serverName)){
+          seenServer.add(data.serverName);
+          const list = document.getElementById('server-identityt-list');
+          list.innerHTML += '<li> Node Discovered: <strong>${data.serverName}</strong> </li>';
+        }
+
+        //Updating CPU chart
+        const numericCpu = parseFload(data.cpuLoad);
+        updateChart(numericCpu)
+
+      }catch(err){
+        document.getElementById('health-status').innerText = "Latest Comit: Error";
+        console.error("Fetch Error:", err);
+      }
+    }
+
+    //Startpolling every 3s
+    setInterval(pollCluster, 3000);
   </script>
 
 
