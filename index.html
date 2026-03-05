@@ -18,11 +18,11 @@
       <h1>Project Monitor: Azure HA Web Cluster</h1>
       <div class="status">
         <div class="status-badge">
-          <span>Healthy</span>
+          <span id="health">Healthy</span>
         </div>
         <div class="status-description">
           <span>Live Status  <i class="bi bi-github"></i></span>
-          <span id="health-status">Latest Comit: Checking<!--<span id="health">Checking...</span> --></span>
+          <span id="health-status">Latest Comit: Running<!--<span id="health">Checking...</span> --></span>
         </div>
       </div>
     </header>
@@ -57,13 +57,13 @@
         <h3>KPI Hero Cards</h3>
         <div class="cards">
           <div class="card">
-            <h3 >Instance Count</h3>
+            <h3 > VM Instance Count</h3>
             <p id="vm-count">2</p>
             <i class="bi bi-diagram-3"></i>
           </div>
           <div class="card">
-            <h3>Avg CPU</h3>
-            <p><span id="cpu-load">12</span>%</p>
+            <h3>Last CPU Spike</h3>
+            <p><span id="cpu-load">12%</span></p>
             <i class="bi bi-clouds"></i>
           </div>
           <div class="card">
@@ -73,7 +73,7 @@
           </div>
           <div class="card">
             <h3>Total Request</h3>
-            <p>15,476</p>
+            <p id="total-request">15,476</p>
             <i class="bi bi-download"></i>
           </div>
         </div>
@@ -111,9 +111,14 @@
 
   <script type="text/javascript">
     let seenServer = new Set();
+    let stressedServer = new Set();
+    let spike = 0;
 
     //Using the load balancer to access the server
     const lbIp = 'http://20.125.84.61/health.json';
+
+    // Total number of successfull request this site has make to the server
+    total_request = 0;
 
     const ctx = document.getElementById('cpuChart').getContext('2d');
     const cpuChart = new Chart(ctx, {
@@ -126,7 +131,7 @@
                 borderColor: '#00ff00',
                 backgroundColor: 'rgba(0, 255, 0, 0.1)',
                 fill: true,
-                tension: 0.4
+                tension: 0.1
             }]
         },
         options: {
@@ -136,11 +141,11 @@
 
     //Handles updates on CPU chart
     function updateChart(value){
-      const time = new Date().toLocalTimeString();
+      const time = new Date().toLocaleTimeString();
 
       //adding new data
       cpuChart.data.labels.push(time);
-      cpuChart.data.datasets[0].data.shift();
+      cpuChart.data.datasets[0].data.push(value);
 
       //Maintain "keeping only 10 points"
       if(cpuChart.data.labels.length > 10){
@@ -159,19 +164,30 @@
 
         const data = await response.json()
 
-        //updating the CPU nemeric value
-        document.getElementById('cpu-load').innerText = data.cpuLoad;
+        //updating the CPU nemeric value        
+        if(spike < data.cpuLoad){
+          spike = data.cpuLoad;
+          document.getElementById('cpu-load').innerText = spike; 
+          if(spike >= 80){document.getElementById('health').innerText = "WARNING"};
+        }
+        
 
         //Adding to server identity list if new
         if(!seenServer.has(data.serverName)){
           seenServer.add(data.serverName);
-          const list = document.getElementById('server-identityt-list');
-          list.innerHTML += '<li> Node Discovered: <strong>${data.serverName}</strong> </li>';
+          const list = document.getElementById('server-identity-list');
+          list.innerHTML += `<li> Node Discovered: <strong>${data.serverName}</strong> </li>`;
         }
 
-        //Updating CPU chart
-        const numericCpu = parseFload(data.cpuLoad);
+
+        //Updating CPU chart multiply by 10 to have higher spikes
+        const random = Math.random();
+        const numericCpu = (parseFloat(data.cpuLoad) + random )*10;
         updateChart(numericCpu)
+        console.log(data);
+
+        total_request += 1;
+        document.getElementById('total-request').innerText = total_request;
 
       }catch(err){
         document.getElementById('health-status').innerText = "Latest Comit: Error";
